@@ -8,7 +8,10 @@ module.exports = async function (app, dbClient) {
 
   // Create TTL index to expire documents after X seconds
   // https://www.mongodb.com/docs/manual/tutorial/expire-data/
-  issuesCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 10 });
+  issuesCollection.createIndex(
+    { expireXSecondsFrom: 1 },
+    { expireAfterSeconds: 86400 }, // Expire records after 1 day
+  );
 
   // Set up issueController middleware with database connection
   const { createNewIssue } = issueControllerSetup(issuesCollection);
