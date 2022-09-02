@@ -6,8 +6,6 @@ const server = require('../server');
 chai.use(chaiHttp);
 
 suite('Functional Tests', function () {
-  console.log('Before');
-
   // Allow server connection to db before starting tests
   this.beforeAll((done) => {
     setTimeout(() => done(), 3000);
@@ -39,6 +37,73 @@ suite('Functional Tests', function () {
         created_by,
         assigned_to,
         status_text,
+      })
+      .then((res) => {
+        assert.equal(res.status, 200, 'POST response status should be 200');
+        assert.equal(
+          res.type,
+          'application/json',
+          'Response type should be application/json',
+        );
+
+        assert.include(
+          res.body,
+          expectedResponse,
+          'Returned Issue JSON should contain all input properties and values, plus an "open" property with value of true',
+        );
+
+        // Check date / time properties exist on returned object
+        assert.containsAllKeys(
+          res.body,
+          ['created_on', 'updated_on'],
+          'Returned Issue JSON should have Date/Time properties',
+        );
+
+        // Check returned date/time is within 5s of creationTime
+        assert.approximately(
+          new Date(res.body.created_on) - creationTime,
+          0,
+          5000,
+          'Returned created_on time should be within 5s',
+        );
+
+        assert.approximately(
+          new Date(res.body.updated_on) - creationTime,
+          0,
+          5000,
+          'Returned updated_on date should be within 5s',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
+
+  test('A POST request to /api/issues/testProject with required issue fields should return a complete issue object with default entries', (done) => {
+    const issue_title = 'TEST ISSUE';
+    const issue_text = 'Example of creating an issue with all fields completed';
+    const created_by = 'Test Runner';
+
+    const creationTime = new Date(Date.now());
+
+    const expectedResponse = {
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to: '',
+      status_text: '',
+      open: true,
+    };
+
+    chai
+      .request(server)
+      .post('/api/issues/testProject')
+      .send({
+        issue_title,
+        issue_text,
+        created_by,
       })
       .then((res) => {
         assert.equal(res.status, 200, 'POST response status should be 200');

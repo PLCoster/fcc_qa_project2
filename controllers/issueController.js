@@ -4,9 +4,9 @@ module.exports = function (issueCollection) {
   // Middleware that creates a new issue for the given project
   // Created document is stored in res.locals.issueDoc
   issueController.createNewIssue = async (req, res, next) => {
-    const projectName = req.params.project;
+    const project_name = req.params.project;
 
-    if (!projectName) {
+    if (!project_name) {
       return res.json({ error: 'require project name for issues in URL' });
     }
 
@@ -32,23 +32,26 @@ module.exports = function (issueCollection) {
     // No fields are missing, create a new DB document
     try {
       const creationDate = new Date();
-      const issueDocInfo = await issueCollection.insertOne(
-        {
-          issue_title,
-          issue_text,
-          created_by,
-          assigned_to,
-          status_text,
-          open: true,
-          created_on: creationDate,
-          updated_on: creationDate,
-        },
-        { new: true },
-      );
+
+      // Create Document in DB
+      const issueDocInfo = await issueCollection.insertOne({
+        project_name,
+        issue_title,
+        issue_text,
+        created_by,
+        assigned_to: assigned_to === undefined ? '' : assigned_to,
+        status_text: status_text === undefined ? '' : status_text,
+        open: true,
+        created_on: creationDate,
+        updated_on: creationDate,
+        expireXSecondsFrom: creationDate,
+      });
+
+      // Get created document (can't seem to be done in a single step...)
       const issueDoc = await issueCollection.findOne({
         _id: issueDocInfo.insertedId,
       });
-      console.log(issueDoc);
+
       res.locals.issueDoc = issueDoc;
       return next();
     } catch (err) {
