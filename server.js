@@ -7,6 +7,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const dbConnection = require('./dbconnection.js');
 const apiRoutes = require('./routes/api.js');
 const fccTestingRoutes = require('./routes/fcctesting.js');
 const runner = require('./test-runner');
@@ -32,31 +33,34 @@ app.use(cors({ origin: '*' })); // For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Front end for specific project issues:
-app.route('/:project/').get(function (req, res) {
-  res.sendFile(__dirname + '/views/issue.html');
-});
+// Connect to DB before connecting app routes:
+dbConnection(async (dbClient) => {
+  // Front end for specific project issues:
+  app.route('/:project/').get(function (req, res) {
+    res.sendFile(__dirname + '/views/issue.html');
+  });
 
-// Serve index.html page on get request to '/'
-app.route('/').get(function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
-});
+  // Serve index.html page on get request to '/'
+  app.route('/').get(function (req, res) {
+    res.sendFile(__dirname + '/views/index.html');
+  });
 
-// For FCC testing purposes
-fccTestingRoutes(app);
+  // For FCC testing purposes
+  fccTestingRoutes(app);
 
-// Routing for API
-apiRoutes(app);
+  // Routing for API
+  await apiRoutes(app, dbClient);
 
-// 404 Not Found Middleware
-app.use(function (req, res, next) {
-  res.status(404).type('text').send('Not Found');
-});
-
-// 404 page not found:
-app.get('*', (req, res) => {
-  // Redirect to index
-  res.redirect('/');
+  // 404 page not found:
+  app.get('*', (req, res) => {
+    console.log('HIT 404 ROUTE');
+    // Redirect to index
+    res.redirect('/');
+  });
+}).catch((err) => {
+  // If an error occurs, respond to requests with error message
+  console.error('Error when trying to set up routes with DB: ', err);
+  app.use('*', (req, res) => res.send('Database connection error!'));
 });
 
 // Internal Error Handler:
