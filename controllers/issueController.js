@@ -1,6 +1,26 @@
 module.exports = function (issueCollection) {
   const issueController = {};
 
+  issueController.getAllProjectIssues = async (req, res, next) => {
+    const project_name = req.params.project;
+    console.log('Looking for project: ', project_name);
+
+    if (!project_name) {
+      return res
+        .status(400)
+        .json({ error: 'require project name for issues in URL' });
+    }
+
+    const projectIssues = await issueCollection
+      .find({ project_name })
+      .sort({ updated_on: 1 })
+      .toArray();
+
+    res.locals.projectIssues = projectIssues;
+
+    return next();
+  };
+
   // Middleware that creates a new issue for the given project
   // Created document is stored in res.locals.issueDoc
   issueController.createNewIssue = async (req, res, next) => {

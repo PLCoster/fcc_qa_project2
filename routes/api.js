@@ -14,13 +14,15 @@ module.exports = async function (app, dbClient) {
   );
 
   // Set up issueController middleware with database connection
-  const { createNewIssue } = issueControllerSetup(issuesCollection);
+  const { getAllProjectIssues, createNewIssue } =
+    issueControllerSetup(issuesCollection);
 
   app
     .route('/api/issues/:project')
 
-    .get(function (req, res) {
-      let project = req.params.project;
+    // GET route to return all issues for a project
+    .get(getAllProjectIssues, function (req, res) {
+      return res.json(res.locals.projectIssues);
     })
 
     // POST route to handle creating a new issue for a project
