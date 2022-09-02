@@ -147,4 +147,32 @@ suite('Functional Tests', function () {
         done(err);
       });
   });
+
+  test('A POST request to /api/issues/testProject missing required fields should return an error', (done) => {
+    const missingFields = ['issue_title', 'issue_text', 'created_by'];
+    const expectedResponse = {
+      error: 'required field(s) missing',
+      missingFields,
+    };
+
+    chai
+      .request(server)
+      .post('/api/issues/testProject')
+      .send({})
+      .then((res) => {
+        assert.equal(res.status, 400, 'POST response status should be 400');
+        assert.equal(
+          res.type,
+          'application/json',
+          'Response type should be application/json',
+        );
+
+        assert.deepEqual(res.body, expectedResponse);
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
 });

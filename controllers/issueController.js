@@ -7,7 +7,9 @@ module.exports = function (issueCollection) {
     const project_name = req.params.project;
 
     if (!project_name) {
-      return res.json({ error: 'require project name for issues in URL' });
+      return res
+        .status(400)
+        .json({ error: 'require project name for issues in URL' });
     }
 
     const { issue_title, issue_text, created_by, assigned_to, status_text } =
@@ -26,7 +28,9 @@ module.exports = function (issueCollection) {
         },
         [],
       );
-      return res.json({ error: 'required field(s) missing', missingFields });
+      return res
+        .status(400)
+        .json({ error: 'required field(s) missing', missingFields });
     }
 
     // No fields are missing, create a new DB document
