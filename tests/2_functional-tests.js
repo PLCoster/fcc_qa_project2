@@ -6,6 +6,13 @@ const server = require('../server');
 chai.use(chaiHttp);
 
 suite('Functional Tests', function () {
+  console.log('Before');
+
+  // Allow server connection to db before starting tests
+  this.beforeAll((done) => {
+    setTimeout(() => done(), 3000);
+  });
+
   test('A POST request to /api/issues/testProject with every issue field should return a complete issue object', (done) => {
     const issue_title = 'TEST ISSUE';
     const issue_text = 'Example of creating an issue with all fields completed';
@@ -34,14 +41,12 @@ suite('Functional Tests', function () {
         status_text,
       })
       .then((res) => {
-        console.log('IN PROMISE CHAIN');
         assert.equal(res.status, 200, 'POST response status should be 200');
         assert.equal(
           res.type,
           'application/json',
           'Response type should be application/json',
         );
-        console.log(res.body);
 
         assert.include(
           res.body,
