@@ -1,3 +1,7 @@
+const { ObjectId } = require('mongodb');
+
+const ObjectID = require('mongodb').ObjectID;
+
 module.exports = function (issueCollection) {
   const issueController = {};
 
@@ -10,8 +14,8 @@ module.exports = function (issueCollection) {
         .json({ error: 'require project name for issues in URL' });
     }
 
-    // Get any filters if they are present:
-    const issueFilters = ({
+    // Get any valid field filters if they are present:
+    const issueFilters = (({
       issue_title,
       issue_text,
       created_by,
@@ -20,7 +24,21 @@ module.exports = function (issueCollection) {
       open,
       created_on,
       updated_on,
-    } = req.query);
+    }) => ({
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to,
+      status_text,
+      open,
+      created_on,
+      updated_on,
+    }))(req.query);
+
+    // Remove any undefined keys:
+    Object.keys(issueFilters).forEach((key) =>
+      issueFilters[key] === undefined ? delete issueFilters[key] : null,
+    );
 
     // Coerce non-string issue filters into the correct types:
     if (issueFilters.open) {
@@ -123,6 +141,95 @@ module.exports = function (issueCollection) {
         err,
       );
       return next(err);
+    }
+  };
+
+  issueController.updateIssueByID = async (req, res, next) => {
+    const project_name = req.params.project;
+
+    if (!project_name) {
+      // !!! Should probably be 400 code (200 needed for FE)
+      return res
+        .status(400)
+        .json({ error: 'require project name for issues in URL' });
+    }
+
+    // If no issue _id set, return an error
+    const _id = req.body._id;
+    if (_id === undefined) {
+      // !!! Should probably be 400 code (200 needed for FE)
+      return res.status(200).json({
+        error: 'missing _id',
+        info: 'Valid _id field is required to update a specific issue',
+      });
+    }
+
+    const issueUpdates = (({
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to,
+      status_text,
+      open,
+    }) => ({
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to,
+      status_text,
+      open,
+    }))(req.body);
+
+    // Remove any undefined or empty string update fields:
+    Object.keys(issueUpdates).forEach((key) =>
+      [undefined, ''].includes(issueUpdates[key])
+        ? delete issueUpdates[key]
+        : null,
+    );
+
+    // Open can only be set to false to close the issue, otherwise it is ignored
+    if (issueUpdates.open !== 'false') {
+      delete issueUpdates.open;
+    } else {
+      issueUpdates.open = false;
+    }
+
+    // If we have no fields to be updated, return an error:
+    if (Object.keys(issueUpdates).length === 0) {
+      return res.status(200).json({
+        // !!! Should probably be 400 code (200 needed for FE)
+        error: 'no update field(s) sent',
+        _id,
+        info: 'Minimum of 1 field must be given a value to update',
+      });
+    }
+
+    // Update the update_on property of the issue
+    issueUpdates.updated_on = new Date();
+
+    try {
+      // Perform update on document by id
+      const updateInfo = await issueCollection.updateOne(
+        { _id: ObjectId(_id) },
+        { $set: { ...issueUpdates } },
+      );
+
+      if (updateInfo.modifiedCount !== 1) {
+        throw new Error('No document found for update');
+      }
+
+      const updateDoc = await issueCollection.findOne({ _id: ObjectId(_id) });
+
+      res.locals.updateDoc = updateDoc;
+      return next();
+    } catch (err) {
+      console.error('Error in issueController.updateIssueById: ', err);
+      // !!! Should probably be 400 code (200 needed for FE)
+      return res.status(200).json({
+        error: 'could not update',
+        _id,
+        info: 'Issue could not be updated. Please check issue _id is valid',
+      });
     }
   };
 

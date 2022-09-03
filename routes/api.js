@@ -3,6 +3,30 @@ const issueControllerSetup = require('../controllers/issueController');
 
 const DB_NAME = process.env.DB_NAME;
 
+const removeUnneededIssueFields = ({
+  _id,
+  project_name,
+  issue_title,
+  issue_text,
+  created_by,
+  assigned_to,
+  status_text,
+  open,
+  created_on,
+  updated_on,
+}) => ({
+  _id,
+  project_name,
+  issue_title,
+  issue_text,
+  created_by,
+  assigned_to,
+  status_text,
+  open,
+  created_on,
+  updated_on,
+});
+
 module.exports = async function (app, dbClient) {
   const issuesCollection = await dbClient.db(DB_NAME).collection('issues');
 
@@ -14,7 +38,7 @@ module.exports = async function (app, dbClient) {
   );
 
   // Set up issueController middleware with database connection
-  const { getAllProjectIssues, createNewIssue } =
+  const { getAllProjectIssues, createNewIssue, updateIssueByID } =
     issueControllerSetup(issuesCollection);
 
   app
@@ -22,16 +46,23 @@ module.exports = async function (app, dbClient) {
 
     // GET route to return all issues for a project
     .get(getAllProjectIssues, function (req, res) {
-      return res.json(res.locals.projectIssues);
+      return res.json(
+        res.locals.projectIssues.map((issue) =>
+          removeUnneededIssueFields(issue),
+        ),
+      );
     })
 
     // POST route to handle creating a new issue for a project
     .post(createNewIssue, function (req, res) {
-      return res.json(res.locals.issueDoc);
+      // Return issue-related document fields:
+      return res.json(removeUnneededIssueFields(res.locals.issueDoc));
     })
 
-    .put(function (req, res) {
-      let project = req.params.project;
+    .put(updateIssueByID, function (req, res) {
+      const updateDoc = removeUnneededIssueFields(res.locals.updateDoc);
+      updateDoc.result = 'successfully updated';
+      return res.status(200).json(updateDoc);
     })
 
     .delete(function (req, res) {
