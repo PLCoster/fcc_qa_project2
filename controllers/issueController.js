@@ -3,7 +3,6 @@ module.exports = function (issueCollection) {
 
   issueController.getAllProjectIssues = async (req, res, next) => {
     const project_name = req.params.project;
-    console.log('Looking for project: ', project_name);
 
     if (!project_name) {
       return res
@@ -11,8 +10,48 @@ module.exports = function (issueCollection) {
         .json({ error: 'require project name for issues in URL' });
     }
 
+    // Get any filters if they are present:
+    const issueFilters = ({
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to,
+      status_text,
+      open,
+      created_on,
+      updated_on,
+    } = req.query);
+
+    // Coerce non-string issue filters into the correct types:
+    if (issueFilters.open) {
+      if (!['true', 'false'].includes(issueFilters.open)) {
+        return res.status(400).json({
+          error: `Invalid value given for open filter: ${issueFilters.open}; must be true or false`,
+        });
+      }
+      issueFilters.open = issueFilters.open === 'true' ? true : false;
+    }
+    if (issueFilters.created_on) {
+      const givenValue = issueFilters.created_on;
+      issueFilters.created_on = new Date(issueFilters.created_on);
+      if (issueFilters.created_on.toString() === 'Invalid Date') {
+        return res.status(400).json({
+          error: `Invalid value given for created_on filter: ${givenValue}`,
+        });
+      }
+    }
+    if (issueFilters.updated_on) {
+      const givenValue = issueFilters.updated_on;
+      issueFilters.updated_on = new Date(issueFilters.updated_on);
+      if (issueFilters.updated_on.toString() === 'Invalid Date') {
+        return res.status(400).json({
+          error: `Invalid value given for updated_on filter: ${givenValue}`,
+        });
+      }
+    }
+
     const projectIssues = await issueCollection
-      .find({ project_name })
+      .find({ project_name, ...issueFilters })
       .sort({ updated_on: 1 })
       .toArray();
 

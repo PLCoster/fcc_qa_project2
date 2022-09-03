@@ -239,4 +239,78 @@ suite('Functional Tests', function () {
         done(err);
       });
   });
+
+  test('A GET request to /api/issues/testProject with a single filter field should return a filtered list of queries (issue_text)', (done) => {
+    const issue_text = 'Example of creating an issue with all fields completed';
+    chai
+      .request(server)
+      .get(`/api/issues/${PROJECT_NAME}?issue_text=${issue_text}`)
+      .then((res) => {
+        assert.equal(res.status, 200, 'GET response status should be 200');
+        assert.equal(
+          res.type,
+          'application/json',
+          'Response type should be application/json',
+        );
+
+        assert.isArray(res.body);
+        // Should be a single issue
+        assert.equal(res.body.length, 1);
+        assert.equal(
+          res.body[0].issue_text,
+          issue_text,
+          'Filtered issue should have matching issue_text property',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
+
+  test('A GET request to /api/issues/testProject with multiple filter fields should return a correctly filtered list of queries (issue_title, created_by, assigned_to, status_text)', (done) => {
+    const issue_title = 'TEST ISSUE';
+    const issue_text = 'Example of creating an issue with all fields completed';
+    const created_by = 'Test Runner';
+    const assigned_to = 'Test Assignee';
+    const status_text = 'This is a TEST Issue';
+
+    const expectedResponse = {
+      issue_title,
+      issue_text,
+      created_by,
+      assigned_to,
+      status_text,
+      open: true,
+    };
+
+    chai
+      .request(server)
+      .get(
+        `/api/issues/${PROJECT_NAME}?issue_title=${issue_title}&created_by=${created_by}&assigned_to=${assigned_to}&status_text=${status_text}`,
+      )
+      .then((res) => {
+        assert.equal(res.status, 200, 'GET response status should be 200');
+        assert.equal(
+          res.type,
+          'application/json',
+          'Response type should be application/json',
+        );
+
+        assert.isArray(res.body);
+        // Should be a single issue
+        assert.equal(res.body.length, 1);
+        assert.include(
+          res.body[0],
+          expectedResponse,
+          'Filtered issue should include all expected Response properties',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
 });
