@@ -1,10 +1,10 @@
 const { ObjectId } = require('mongodb');
 
-const ObjectID = require('mongodb').ObjectID;
-
 module.exports = function (issueCollection) {
   const issueController = {};
 
+  // Gets all Issues for a given project_name that match all filters
+  // Matching Issues are added to res.locals.projectIssues
   issueController.getAllProjectIssues = async (req, res, next) => {
     const project_name = req.params.project;
 
@@ -16,6 +16,7 @@ module.exports = function (issueCollection) {
 
     // Get any valid field filters if they are present:
     const issueFilters = (({
+      _id,
       issue_title,
       issue_text,
       created_by,
@@ -25,6 +26,7 @@ module.exports = function (issueCollection) {
       created_on,
       updated_on,
     }) => ({
+      _id,
       issue_title,
       issue_text,
       created_by,
@@ -41,6 +43,15 @@ module.exports = function (issueCollection) {
     );
 
     // Coerce non-string issue filters into the correct types:
+    if (issueFilters._id) {
+      try {
+        issueFilters._id = ObjectId(issueFilters._id);
+      } catch (err) {
+        return res.status(400).json({
+          error: `Invalid _id parameter: ${issueFilters._id}; Please check _id`,
+        });
+      }
+    }
     if (issueFilters.open) {
       if (!['true', 'false'].includes(issueFilters.open)) {
         return res.status(400).json({
@@ -78,7 +89,7 @@ module.exports = function (issueCollection) {
     return next();
   };
 
-  // Middleware that creates a new issue for the given project
+  // Creates a new issue for the given project
   // Created document is stored in res.locals.issueDoc
   issueController.createNewIssue = async (req, res, next) => {
     const project_name = req.params.project;
@@ -144,11 +155,12 @@ module.exports = function (issueCollection) {
     }
   };
 
+  // Update an Issue is the project_name and _id matches an Issue
+  // Adds the updated document to res.locals.updateDoc
   issueController.updateIssueByID = async (req, res, next) => {
     const project_name = req.params.project;
 
     if (!project_name) {
-      // !!! Should probably be 400 code (200 needed for FE)
       return res
         .status(400)
         .json({ error: 'require project name for issues in URL' });
@@ -188,6 +200,8 @@ module.exports = function (issueCollection) {
     );
 
     // Open can only be set to false to close the issue, otherwise it is ignored
+    // !!! Perhaps make only JSON bodies accepted for this route
+    // such that boolean values can be passed in directly??
     if (issueUpdates.open !== 'false') {
       delete issueUpdates.open;
     } else {
@@ -210,7 +224,7 @@ module.exports = function (issueCollection) {
     try {
       // Perform update on document by id
       const updateInfo = await issueCollection.updateOne(
-        { _id: ObjectId(_id) },
+        { project_name, _id: ObjectId(_id) },
         { $set: { ...issueUpdates } },
       );
 
@@ -228,7 +242,52 @@ module.exports = function (issueCollection) {
       return res.status(200).json({
         error: 'could not update',
         _id,
-        info: 'Issue could not be updated. Please check issue _id is valid',
+        info: 'Issue could not be updated. Please check issue _id is valid, and project name is correct',
+      });
+    }
+  };
+
+  // Deletes an Issue if given _id and project_name matches
+  // Deleted Issue _id is added to res.locals.deletedID
+  issueController.deleteIssueByID = async (req, res, next) => {
+    const project_name = req.params.project;
+
+    if (!project_name) {
+      return res
+        .status(400)
+        .json({ error: 'require project name for issues in URL' });
+    }
+
+    // If no issue _id set, return an error
+    const _id = req.body._id;
+    if (_id === undefined) {
+      // !!! Should probably be 400 code (200 needed for FE)
+      return res.status(200).json({
+        error: 'missing _id',
+        info: 'Valid _id field is required to delete a specific issue',
+      });
+    }
+
+    // Try to delete the given issue:
+    try {
+      const deleteInfo = await issueCollection.deleteOne({
+        project_name,
+        _id: ObjectId(_id),
+      });
+
+      if (deleteInfo.deletedCount !== 1) {
+        throw new Error('No document found for deletion');
+      }
+
+      res.locals.deletedID = _id;
+      return next();
+    } catch (err) {
+      console.error('Error in issueController.updateIssueById: ', err);
+      // !!! Should probably be 400 code (200 needed for FE)
+      return res.status(200).json({
+        error: 'could not delete',
+        _id,
+        info: 'Issue could not be deleted. Please check issue _id is valid, and project name is correct',
       });
     }
   };

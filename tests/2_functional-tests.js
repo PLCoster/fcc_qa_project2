@@ -496,7 +496,7 @@ suite('Functional Tests', function () {
         getResult.body.forEach((issue) => {
           // No Issues should have the updated fields
           assert.notEqual(issue.assigned_to, assigned_to);
-          assert.notEqual(issue.staus_text, status_text);
+          assert.notEqual(issue.status_text, status_text);
         });
         done();
       })
@@ -586,13 +586,145 @@ suite('Functional Tests', function () {
         getResult.body.forEach((issue) => {
           // No Issues should have the updated fields
           assert.notEqual(issue.assigned_to, assigned_to);
-          assert.notEqual(issue.staus_text, status_text);
+          assert.notEqual(issue.status_text, status_text);
         });
         done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
       });
   });
 
-  // !!! TO DO:
-  // PUT ROUTE TESTS
-  // DELETE ROUTE TESTS
+  test('A DELETE request to /api/issues/testProject with a valid _id should result in the issue being deleted', (done) => {
+    const expectedResponse = { result: 'successfully deleted' };
+
+    // Get all issues for the testProject so we can get an _id:
+    chai
+      .request(server)
+      .get(`/api/issues/${PROJECT_NAME}`)
+      .then((getResult) => {
+        assert.equal(
+          getResult.status,
+          200,
+          'GET response status should be 200',
+        );
+        assert.isArray(getResult.body, 'Result body should be an array');
+        assert.equal(getResult.body.length, 2, 'Two issues should still exist');
+
+        const { _id } = getResult.body[0];
+        expectedResponse._id = _id;
+
+        // Submit DELETE request:
+        return chai
+          .request(server)
+          .delete(`/api/issues/${PROJECT_NAME}`)
+          .send({ _id });
+      })
+      .then((deleteResult) => {
+        assert.equal(
+          deleteResult.status,
+          200,
+          'DELETE response status should be 200',
+        );
+        assert.equal(
+          deleteResult.type,
+          'application/json',
+          'DELETE Response type should be application/json',
+        );
+        assert.include(
+          deleteResult.body,
+          expectedResponse,
+          'Deletion response should show success, and return deleted issue _id',
+        );
+
+        // Check deletion was successful:
+        return chai
+          .request(server)
+          .get(`/api/issues/${PROJECT_NAME}?_id=${expectedResponse._id}`);
+      })
+      .then((getByIDResponse) => {
+        assert.equal(
+          getByIDResponse.status,
+          200,
+          'GET response status should be 200',
+        );
+        assert.isArray(getByIDResponse.body, 'Result body should be an array');
+        assert.equal(
+          getByIDResponse.body.length,
+          0,
+          'Array should be empty as requested _id issue no longer exists',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
+
+  test('A DELETE request to /api/issues/testProject with no _id should return a "missing _id" error', (done) => {
+    const expectedResponse = { error: 'missing _id' };
+
+    // Submit DELETE request:
+    chai
+      .request(server)
+      .delete(`/api/issues/${PROJECT_NAME}`)
+      .send({})
+      .then((deleteResponse) => {
+        assert.equal(
+          deleteResponse.status,
+          200,
+          'Delete Response status should be 200',
+        );
+        assert.equal(
+          deleteResponse.type,
+          'application/json',
+          'DELETE Response type should be application/json',
+        );
+        assert.include(
+          deleteResponse.body,
+          expectedResponse,
+          'Failed Delete response should provide expected error message',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
+
+  test('A DELETE request to /api/issues/testProject with an invalid _id should return a "could not delete" error', (done) => {
+    const _id = 123;
+    const expectedResponse = { error: 'could not delete', _id };
+
+    // Submit DELETE request:
+    chai
+      .request(server)
+      .delete(`/api/issues/${PROJECT_NAME}`)
+      .send({ _id })
+      .then((deleteResponse) => {
+        assert.equal(
+          deleteResponse.status,
+          200,
+          'Delete Response status should be 200',
+        );
+        assert.equal(
+          deleteResponse.type,
+          'application/json',
+          'DELETE Response type should be application/json',
+        );
+        assert.include(
+          deleteResponse.body,
+          expectedResponse,
+          'Failed Delete response should provide expected error message',
+        );
+        done();
+      })
+      .catch((err) => {
+        // Return error to mocha
+        done(err);
+      });
+  });
 });

@@ -38,14 +38,18 @@ module.exports = async function (app, dbClient) {
   );
 
   // Set up issueController middleware with database connection
-  const { getAllProjectIssues, createNewIssue, updateIssueByID } =
-    issueControllerSetup(issuesCollection);
+  const {
+    getAllProjectIssues,
+    createNewIssue,
+    updateIssueByID,
+    deleteIssueByID,
+  } = issueControllerSetup(issuesCollection);
 
   app
     .route('/api/issues/:project')
 
     // GET route to return all issues for a project
-    .get(getAllProjectIssues, function (req, res) {
+    .get(getAllProjectIssues, (req, res) => {
       return res.json(
         res.locals.projectIssues.map((issue) =>
           removeUnneededIssueFields(issue),
@@ -54,18 +58,21 @@ module.exports = async function (app, dbClient) {
     })
 
     // POST route to handle creating a new issue for a project
-    .post(createNewIssue, function (req, res) {
+    .post(createNewIssue, (req, res) => {
       // Return issue-related document fields:
       return res.json(removeUnneededIssueFields(res.locals.issueDoc));
     })
 
-    .put(updateIssueByID, function (req, res) {
+    .put(updateIssueByID, (req, res) => {
       const updateDoc = removeUnneededIssueFields(res.locals.updateDoc);
       updateDoc.result = 'successfully updated';
       return res.status(200).json(updateDoc);
     })
 
-    .delete(function (req, res) {
-      let project = req.params.project;
+    .delete(deleteIssueByID, (req, res) => {
+      return res.json({
+        result: 'successfully deleted',
+        _id: res.locals.deletedID,
+      });
     });
 };
