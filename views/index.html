@@ -2,114 +2,675 @@
 <html>
   <head>
     <title>Issue Tracker</title>
-    <link rel="icon" type="image/png" href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png" />
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/public/style.css">
+    <meta
+      name="description"
+      content="An example of the Free Code Camp Issue Tracker Project"
+    />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- FAVICONS -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/public/favicons/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/public/favicons/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/public/favicons/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/public/site.webmanifest" />
+
+    <!-- STYLES -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/public/style.css" />
   </head>
   <body>
-    <header>
-      <h1>
-        Issue Tracker
-      </h1>
-    </header>
-    <section style="margin: 0 50px;">
-      <h3>Example <code>GET</code> usage</h3>
-      <code>/api/issues/{project}</code><br>
-      <code>/api/issues/{project}?open=true&amp;assigned_to=Joe</code><br>
-      <h3>Example return</h3>
-      <pre>
-<code>[
-  { 
-    "_id": "5871dda29faedc3491ff93bb",
-    "issue_title": "Fix error in posting data",
-    "issue_text": "When we post data it has an error.",
-    "created_on": "2017-01-08T06:35:14.240Z",
-    "updated_on": "2017-01-08T06:35:14.240Z",
-    "created_by": "Joe",
-    "assigned_to": "Joe",
-    "open": true,
-    "status_text": "In QA"
-  },
-  ...
- ]
-</code>
-</pre>
-    </section>
-    <hr style='margin: 0 50px'>
-    <section id='testui' style='margin-left: 50px;'>
-      <h3>Examples</h3>
-      Go to <a href='/api/issues/apitest/'><code>/api/issues/apitest/</code></a>  project
-      <h2 style="text-align: left">API Tests</h2>
-      <h3>Submit issue on <i>apitest</i></h3>
-      <form id="testForm" class="border">
-        <input type="text" name="issue_title" placeholder="*Title" style="width: 100px" required=''><br>
-        <textarea type="text" name="issue_text" placeholder="*Text" style="width: 100px" required=''></textarea><br>
-        <input type="text" name="created_by" placeholder="*Created by" style="width: 100px" required=''><br>
-        <input type="text" name="assigned_to" placeholder="(opt)Assigned to" style="width: 100px"><br>
-        <input type="text" name="status_text" placeholder="(opt)Status text" style="width: 100px"><br>
-        <button type="submit">Submit Issue</button>
-      </form><br>
-      <h3>Update issue on <i>apitest</i> (Change any or all to update issue on the _id supplied)</h3>
-      <form id="testForm2" class="border">
-        <input type="text" name="_id" placeholder="*_id" style="width: 100px" required=''><br>
-        <input type="text" name="issue_title" placeholder="(opt)Title" style="width: 100px"><br>
-        <textarea type="text" name="issue_text" placeholder="(opt)Text" style="width: 100px"></textarea><br>
-        <input type="text" name="created_by" placeholder="(opt)Created by" style="width: 100px"><br>
-        <input type="text" name="assigned_to" placeholder="(opt)Assigned to" style="width: 100px"><br>
-        <input type="text" name="status_text" placeholder="(opt)Status text" style="width: 100px"><br>
-        <label><input type="checkbox" name="open" value="false"> Check to close issue</label><br>
-        <button type="submit">Submit Issue</button>
-      </form><br>
-      <h3>Delete issue on <i>apitest</i></h3>
-      <form id="testForm3" class="border">
-        <input type="text" name="_id" placeholder="_id" style="width: 100px" required=''><br>
-        <button type="submit">Delete Issue</button>
-      </form>
-      <code id='jsonResult'></code>
-    </section>
-    <hr style='margin: 50px; margin-top: 200px'>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href=".">Issue Tracker</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                href="https://plcoster.github.io/homepage/"
+              >
+                Home
+              </a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdownMenuLink"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                FreeCodeCamp QA Projects
+              </a>
+              <ul
+                class="dropdown-menu"
+                aria-labelledby="navbarDropdownMenuLink"
+              >
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://fcc-qa-project1.plcoster.repl.co"
+                  >
+                    Metric - Imperial Converter
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://fcc-qa-project2.plcoster.repl.co"
+                  >
+                    Issue Tracker
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://fcc-qa-project3.plcoster.repl.co"
+                  >
+                    Personal Library
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://fcc-qa-project4.plcoster.repl.co"
+                  >
+                    Sudoku Solver
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="https://fcc-qa-project5.plcoster.repl.co"
+                  >
+                    American British Translator
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                href="https://plcoster.github.io/homepage/projects.html"
+              >
+                All Projects
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/PLCoster">
+                <i class="fab fa-github"></i> Github
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://linkedin.com/in/plcoster">
+                <i class="fab fa-linkedin"></i>
+                LinkedIn
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <main>
+        <h1>
+          <img
+            class="logo"
+            src="/public/logo.png"
+            alt="White icon of a bug on a square green background"
+          />Issue Tracker
+        </h1>
+
+        <hr />
+
+        <section id="testui">
+          <!-- FORM TO SET PROJECT NAME -->
+          <div class="d-flex flex-row justify-content-center">
+            <form id="project-name-form">
+              <h4>Project Name</h4>
+              <input
+                id="project-name-input"
+                type="text"
+                class="form-control form-control-sm"
+                name="project_name"
+                placeholder="Project Name"
+                value="apiTest"
+                required
+              />
+            </form>
+          </div>
+
+          <p style="text-align: center">
+            Create, Update and Delete Issues for
+            <code id="current-project-name">apiTest</code> Project:
+          </p>
+          <div
+            id="testui"
+            class="d-flex flex-row justify-content-center flex-wrap"
+          >
+            <!-- FORM TO CREATE NEW ISSUE -->
+            <form id="testForm">
+              <h4>Create an Issue</h4>
+              <p><code>POST /api/issues/&lt;PROJECT&gt;</code></p>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="issue_title"
+                placeholder="*Title"
+                required
+              />
+              <textarea
+                type="text"
+                class="form-control form-control-sm"
+                name="issue_text"
+                placeholder="*Text"
+                required
+              ></textarea>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="created_by"
+                placeholder="*Created by"
+                required
+              />
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="assigned_to"
+                placeholder="(opt)Assigned to"
+              />
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="status_text"
+                placeholder="(opt)Status text"
+              />
+              <button type="submit" class="btn btn-sm btn-success">
+                Create Issue
+              </button>
+            </form>
+
+            <!-- FORM TO UPDATE AN ISSUE  -->
+            <form id="testForm2">
+              <h4>Update Issue by _id</h4>
+              <p><code>PUT /api/issues/&lt;PROJECT&gt;</code></p>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="_id"
+                placeholder="*_id"
+                required
+              />
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="issue_title"
+                placeholder="(opt)Title"
+              />
+              <textarea
+                type="text"
+                class="form-control form-control-sm"
+                name="issue_text"
+                placeholder="(opt)Text"
+              ></textarea>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="created_by"
+                placeholder="(opt)Created by"
+              />
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="assigned_to"
+                placeholder="(opt)Assigned to"
+              />
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="status_text"
+                placeholder="(opt)Status text"
+              />
+              <div class="form-check mb-2">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  name="open"
+                  value="false"
+                />
+                <label for="open" class="form-check-label"
+                  >Check to close issue</label
+                >
+              </div>
+              <button type="submit" class="btn btn-sm btn-success">
+                Update Issue
+              </button>
+            </form>
+
+            <!-- FORM TO DELETE AN ISSUE  -->
+            <form id="testForm3">
+              <h4>Delete Issue by _id</h4>
+              <p><code>DELETE /api/issues/&lt;PROJECT&gt;</code></p>
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                name="_id"
+                placeholder="_id"
+                required
+              />
+              <button type="submit" class="btn btn-sm btn-success">
+                Delete Issue
+              </button>
+            </form>
+
+            <!-- ISSUE POST / PUT / DELETE RESULT -->
+            <div id="result-section">
+              <p>Response:</p>
+              <p id="response-info">
+                Try Creating, Updating or Deleting an Issue to see the result
+                here!
+              </p>
+              <code id="jsonResult" class="block"></code>
+            </div>
+          </div>
+
+          <p class="note">
+            <strong>NOTE: </strong>This is a DEMO site. Anything submitted to
+            the API can be viewed by any other user. Created Issues are deleted
+            after 24hrs.
+          </p>
+        </section>
+
+        <hr />
+
+        <section>
+          <h3>Example Usage:</h3>
+
+          <h5>To View Project Issues:</h5>
+          <ul class="usage-list">
+            <li>
+              View <code>/&lt;PROJECT&gt;</code> in the browser, where
+              &lt;PROJECT&gt; is the name of the project.
+            </li>
+            <ul>
+              <li>For example <a href="/sampleProject">/sampleProject</a></li>
+            </ul>
+            <li>
+              Alternatively send a GET request to
+              <code>/api/issues/&lt;PROJECT&gt;</code> to receive a JSON array
+              of all Issues for the project.
+            </li>
+            <ul>
+              <li>
+                For example
+                <a href="/api/issues/sampleProject"
+                  >/api/issues/sampleProject</a
+                >
+              </li>
+            </ul>
+            <li>
+              Returned Issues may be filtered by field by including query string
+              parameters for the desired value of Issue fields to be returned.
+              Note that all filters are exact and case-sensitive. Valid fields
+              and values are:
+            </li>
+            <ul>
+              <li><code>_id</code> - 24 hexadecimal characters _id</li>
+              <li>
+                <code>issue_title</code>, <code>issue_text</code>,
+                <code>created_by</code>, <code>assigned_to</code>,
+                <code>status_text</code> - string
+              </li>
+              <li><code>open</code> - string, must be 'true' or 'false'</li>
+              <li>
+                <code>created_on</code>, <code>updated_on</code> - date, can be
+                numeric (ms) or date string e.g. "2022-09-04T21:28:44.998Z"
+              </li>
+            </ul>
+            For example:
+            <ul>
+              <li>
+                Get closed Issues for
+                <code>sampleProject</code>
+                <br />
+                <a href="/api/issues/sampleProject?open=false"
+                  >/api/issues/sampleProject?open=false</a
+                >
+              </li>
+              <li>
+                Get open Issues for
+                <code>sampleProject</code> assigned to 'James'
+                <br />
+                <a href="/api/issues/sampleProject?open=true&assigned_to=James"
+                  >/api/issues/sampleProject?open=true&assigned_to=James</a
+                >
+              </li>
+            </ul>
+          </ul>
+
+          <h5>To Create an Issue:</h5>
+          <ul class="usage-list">
+            <li>
+              Submit the 'Create an Issue' form above with the appropriate
+              Project Name set, filling in all required fields.
+            </li>
+            <li>
+              Alternatively, submit a POST request to
+              <code>/api/issues/&lt;PROJECT&gt;</code> with the desired project
+              name in place of &lt;PROJECT&gt;, and with a body consisting of
+              urlencoded fields of:
+              <ul>
+                <li>
+                  Required Fields: <code>issue_title</code>,
+                  <code>issue_text</code>, <code>created_by</code>
+                </li>
+                <li>
+                  Optional Fields: <code>assigned_to</code>,
+                  <code>status_text</code>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <h5>To Update an Issue:</h5>
+          <ul class="usage-list">
+            <li>
+              Submit the 'Update Issue by _id' form above with the appropriate
+              Project Name set, filling in the required _id field and at least
+              one other field to be updated.
+            </li>
+            <li>
+              Alternatively, submit a PUT request to
+              <code>/api/issues/&lt;PROJECT&gt;</code> with the desired project
+              name in place of &lt;PROJECT&gt;, and with a body consisting of
+              urlencoded fields of:
+              <ul>
+                <li>
+                  Required Fields: <code>_id</code> and at least one of the
+                  following optional fields to be updated:
+                </li>
+                <li>
+                  Optional Fields: <code>issue_title</code>,
+                  <code>issue_text</code>, <code>created_by</code>,
+                  <code>assigned_to</code>, <code>status_text</code>,
+                  <code>open</code> (open must be 'false' in order to close
+                  Issue)
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <h5>To Delete an Issue:</h5>
+          <ul class="usage-list">
+            <li>
+              Submit the 'Delete Issue by _id' form above with the appropriate
+              Project Name set, filling in the required _id field.
+            </li>
+            <li>
+              Alternatively, submit a DELETE request to
+              <code>/api/issues/&lt;PROJECT&gt;</code> with the desired project
+              name in place of &lt;PROJECT&gt;, and with a body consisting of a
+              urlencoded field of <code>_id</code>, the 24 hexadecimal
+              characters _id of the Issue to delete.
+            </li>
+          </ul>
+
+          <h3>Example Output:</h3>
+          <p>On successfully creating an Issue:</p>
+
+          <code class="block"
+            >{
+            <ul class="indent">
+              <li>"_id":"63151d66b85fc3cfff645c7c",</li>
+              <li>"project_name":"sampleProject",</li>
+              <li>"issue_title":"Demonstration Issue",</li>
+              <li>
+                "issue_text":"This is an Issue created for Demonstration
+                Purposes",
+              </li>
+              <li>"created_by":"Paul",</li>
+              <li>"assigned_to":"James",</li>
+              <li>"status_text":"Good start - lets keep working on it!",</li>
+              <li>"open":true,</li>
+              <li>"created_on":"2022-09-04T21:49:26.607Z",</li>
+              <li>"updated_on":"2022-09-04T21:49:26.607Z",</li>
+            </ul>
+            }</code
+          >
+
+          <p>On successfully updating an Issue:</p>
+
+          <code class="block"
+            >{
+            <ul class="indent">
+              <li>"_id":"63151d66b85fc3cfff645c7c",</li>
+              <li>"project_name":"sampleProject",</li>
+              <li>"issue_title":"Demonstration Issue - Updated",</li>
+              <li>
+                "issue_text":"This is an Update to the original demonstration
+                issue",
+              </li>
+              <li>"created_by":"Paul",</li>
+              <li>"assigned_to":"James",</li>
+              <li>"status_text":"Lets try deleting next!",</li>
+              <li>"open":true,</li>
+              <li>"created_on":"2022-09-04T21:49:26.607Z",</li>
+              <li>"updated_on":"2022-09-04T21:52:15.213Z",</li>
+              <li>"result":"successfully updated",</li>
+            </ul>
+            }</code
+          >
+
+          <p>On successfully deleting an Issue:</p>
+
+          <code id="jsonResult" class="block"
+            >{
+            <ul class="indent">
+              <li>"result":"successfully deleted",</li>
+              <li>"_id":"63151d66b85fc3cfff645c7c",</li>
+            </ul>
+            }</code
+          >
+
+          <p>
+            If an invalid input is sent, for any of these operations, a JSON
+            with an 'error' property is and an explanation of the error is
+            returned.
+          </p>
+        </section>
+      </main>
+
+      <footer>
+        <p>
+          A project set by
+          <a href="https://www.freecodecamp.org/">freeCodeCamp</a>
+        </p>
+      </footer>
+    </div>
+
     <!-- Your web-app is https, so your scripts need to be too -->
-    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
-            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
-            crossorigin="anonymous"></script>
+    <!-- Bootstrap Script -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- jquery -->
+    <script
+      src="https://code.jquery.com/jquery-2.2.1.min.js"
+      integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Custom Form Submit Script -->
     <script>
-      $(function() {
-        $('#testForm').submit(function(e) {
+      // Helper function to make any displayed results HTML-safe
+      function replaceUnsafeChars(input) {
+        if (typeof input !== 'string') {
+          return input;
+        }
+
+        const charReplacements = {
+          '<': '&lt;',
+          '>': '&gt;',
+          '&': '&amp;',
+          '"': '&quot;',
+          "'": '&#39;',
+        };
+
+        return input
+          .split('')
+          .map((char) => {
+            if (char in charReplacements) {
+              return charReplacements[char];
+            }
+            return char;
+          })
+          .join('');
+      }
+
+      // Helper function to update response result element after
+      // POST, PUT or DELETE
+      function displayResponseJSON(response) {
+        $('#jsonResult').html(
+          `{<ul class="indent">${Object.keys(response.responseJSON)
+            .map(
+              (key) =>
+                `<li>"${key}": ${key === 'open' ? '' : '"'}${replaceUnsafeChars(
+                  response.responseJSON[key],
+                )}${key === 'open' ? '' : '"'},</li>`,
+            )
+            .join('')}</ul>}`,
+        );
+      }
+
+      $(function () {
+        $('#project-name-input').val('apiTest');
+
+        // Update current project name when input changes
+        $('#project-name-input').on('keyup', function (e) {
+          console.log(e);
+          console.log('PROJECT NAME CHANGED!');
+          $('#current-project-name').text($('#project-name-input').val());
+        });
+
+        // Perform no action on project name form submission
+        $('#project-name-form').submit(function (e) {
+          e.preventDefault();
+        });
+
+        // Update response info after form submissions:
+        $('#testForm').submit(function (e) {
+          e.preventDefault();
+          const project_name = $('#project-name-input').val();
+
+          if (!project_name) {
+            $('#response-info').text('Error: Please specify project name!');
+            $('#jsonResult').text();
+            return;
+          }
+
           $.ajax({
-            url: '/api/issues/apitest',
+            url: `/api/issues/${project_name}`,
             type: 'post',
             data: $('#testForm').serialize(),
-            success: function(data) {
-              $('#jsonResult').text(JSON.stringify(data));
-            }
+            complete: function (data) {
+              $('#response-info').text('POST request response:');
+              displayResponseJSON(data);
+            },
           });
-          e.preventDefault();
         });
-        $('#testForm2').submit(function(e) {
+
+        $('#testForm2').submit(function (e) {
+          e.preventDefault();
+          const project_name = $('#project-name-input').val();
+
+          if (!project_name) {
+            $('#response-info').text('Error: Please specify project name!');
+            $('#jsonResult').text();
+            return;
+          }
+
           $.ajax({
-            url: '/api/issues/apitest',
+            url: `/api/issues/${project_name}`,
             type: 'put',
             data: $('#testForm2').serialize(),
-            success: function(data) {
-              $('#jsonResult').text(JSON.stringify(data));
-            }
+            complete: function (data) {
+              $('#response-info').text('PUT request response:');
+              displayResponseJSON(data);
+            },
           });
-          e.preventDefault();
         });
-        $('#testForm3').submit(function(e) {
+
+        $('#testForm3').submit(function (e) {
+          e.preventDefault();
+          const project_name = $('#project-name-input').val();
+          console.log(project_name);
+
+          if (!project_name) {
+            $('#response-info').text('Error: Please specify project name!');
+            $('#jsonResult').text();
+            return;
+          }
+
           $.ajax({
-            url: '/api/issues/apitest',
+            url: `/api/issues/${project_name}`,
             type: 'delete',
             data: $('#testForm3').serialize(),
-            success: function(data) {
-              $('#jsonResult').text(JSON.stringify(data));
-            }
+            complete: function (data) {
+              $('#response-info').text('DELETE request response:');
+              displayResponseJSON(data);
+            },
           });
-          e.preventDefault();
         });
       });
-   </script>
+    </script>
   </body>
 </html>

@@ -1,11 +1,123 @@
+/****** Main Styling ******/
+
 * {
-  margin: 0px;
-  padding: 0px;
+  box-sizing: border-box;
 }
 
 body {
-  padding: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #222;
+  background-color: #fafafa;
+  line-height: 1.4em;
+  min-height: 100vh;
+  min-width: 424px;
 }
+
+main {
+  padding: 40px 0;
+}
+
+main .logo {
+  max-height: 50px;
+  margin-right: 20px;
+}
+
+hr {
+  margin: 25px;
+}
+
+h3 {
+  margin-top: 30px;
+}
+
+h5 {
+  margin-top: 20px;
+}
+
+a {
+  color: #2574a9;
+}
+
+form {
+  margin: 0 10px 25px 10px;
+  padding: 15px;
+  color: #fff;
+  background-color: #333;
+  width: 250px;
+  height: 100%;
+  border-radius: 5px;
+}
+
+form h3 {
+  margin-top: 0;
+}
+
+input,
+select,
+textarea {
+  display: block;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+textarea {
+  height: 50px;
+}
+
+.btn-success {
+  width: 100%;
+  background-color: #25ae1b;
+  border: none;
+}
+
+code {
+  font-family: monospace;
+  font-size: 1em;
+  padding: 2px;
+  color: black;
+  background-color: #fff;
+  max-width: 100%;
+}
+
+code.block {
+  display: block;
+  margin-bottom: 20px;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+code ul.indent {
+  padding-left: 20px;
+  list-style-type: none;
+  margin-bottom: 0;
+}
+
+#result-section {
+  margin: 0 10px 25px 10px;
+  width: 250px;
+  max-width: 100%;
+}
+
+.footer {
+  margin-top: 40px;
+}
+
+/****** NavBar Styles ******/
+
+.navbar.navbar-dark {
+  background-color: #333;
+}
+
+.navbar .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.navbar .nav-link:hover {
+  color: rgba(255, 255, 255, 1);
+}
+
+/****** Issue Styling ******/
 
 .issue {
   margin: 20px;
