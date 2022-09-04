@@ -10,7 +10,7 @@ async function main(cb) {
     await cb(dbClient);
     console.log('Connected to database successfully');
   } catch (err) {
-    console.log('Error when connecting to database: ', err);
+    console.error('Error when connecting to database: ', err);
     throw new Error('Unable to Connect to Database');
   }
 }
