@@ -183,6 +183,9 @@
                 value="apiTest"
                 required
               />
+              <button type="submit" class="btn btn-sm btn-success">
+                View Project Issues
+              </button>
             </form>
           </div>
 
@@ -601,9 +604,15 @@
           $('#current-project-name').text($('#project-name-input').val());
         });
 
-        // Perform no action on project name form submission
+        // Go to project Issue page when project name form is submitted
         $('#project-name-form').submit(function (e) {
           e.preventDefault();
+          const project_name = $('#project-name-input').val();
+          if (!project_name) {
+            return;
+          }
+
+          window.location.href = `/${project_name}`;
         });
 
         // Update response info after form submissions:
