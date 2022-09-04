@@ -11,7 +11,6 @@ body {
   background-color: #fafafa;
   line-height: 1.4em;
   min-height: 100vh;
-  min-width: 424px;
 }
 
 main {
@@ -119,17 +118,34 @@ code ul.indent {
 
 /****** Issue Styling ******/
 
+#newIssue {
+  width: 300px;
+}
+
 .issue {
-  margin: 20px;
-  padding: 5px;
-  width: 60%;
-  border: 2px solid black;
+  margin-top: 20px;
+  padding: 15px;
+  width: 100%;
+  color: #fff;
+  background-color: darkslategray;
+  border-radius: 5px;
+}
+
+.issue p {
+  margin-bottom: 5px;
+}
+
+.issue h3,
+.issue h6,
+.issue hr {
+  margin: 0 0 5px 0;
 }
 
 .closed {
-  background-color: lightgrey;
+  background-color: #333;
 }
 
-.id {
+.issue .id {
+  margin-right: 10px;
   font-size: 10.5px;
 }
