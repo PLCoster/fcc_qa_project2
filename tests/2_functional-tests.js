@@ -506,17 +506,38 @@ suite('Functional Tests', function () {
       });
   });
 
-  test('A PUT request to /api/issues/testProject with a valid _id but no update fields should result in an error JSON being returned', (done) => {
-    const expectedPutResponse = { error: 'missing _id' };
+  test('A PUT request to /api/issues/testProject with a valid _id but no update fields should result in a "no fields" error JSON being returned', (done) => {
+    const expectedPutResponse = { error: 'no update field(s) sent' };
+    let issue;
 
-    const assigned_to = 'THIS SHOULD NOT UPDATE';
-    const status_text = 'THIS SHOULD NOT UPDATE';
-
-    // Attempt to update without _id
+    // First get a valid issue id:
     chai
       .request(server)
-      .put(`/api/issues/${PROJECT_NAME}`)
-      .send({ assigned_to, status_text })
+      .get(`/api/issues/${PROJECT_NAME}`)
+      .then((getResult) => {
+        assert.equal(
+          getResult.status,
+          200,
+          'GET response status should be 200',
+        );
+        assert.isArray(
+          getResult.body,
+          'GET response should be Array of Issues',
+        );
+        assert.equal(
+          getResult.body.length,
+          2,
+          'GET response Array should contain 2 Issues',
+        );
+        issue = getResult.body[0];
+        const { _id } = issue;
+        expectedPutResponse._id = _id;
+
+        return chai
+          .request(server)
+          .put(`/api/issues/${PROJECT_NAME}`)
+          .send({ _id });
+      })
       .then((putResult) => {
         assert.equal(
           putResult.status,
@@ -534,7 +555,33 @@ suite('Functional Tests', function () {
           expectedPutResponse,
           'PUT response should have same fields and values as expected response',
         );
-        done();
+
+        // Ensure the original Issue is unchanged:
+        return chai
+          .request(server)
+          .get(`/api/issues/${PROJECT_NAME}?_id=${issue._id}`);
+      })
+      .then((getResponse) => {
+        assert.equal(
+          getResponse.status,
+          200,
+          'GET response status should be 200',
+        );
+        assert.isArray(
+          getResponse.body,
+          'GET response should be Array of Issues',
+        );
+        assert.equal(
+          getResponse.body.length,
+          1,
+          'GET response Array should contain a single Issue',
+        );
+        assert.deepEqual(
+          getResponse.body[0],
+          issue,
+          'The issue should be unchanged after PUT fails',
+        );
+        return done();
       })
       .catch((err) => {
         // Return error to mocha
