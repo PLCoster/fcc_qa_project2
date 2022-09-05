@@ -7,7 +7,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const dbConnection = require('./dbconnection.js');
+const DBConnection = require('./dbconnection.js');
 const apiRoutes = require('./routes/api.js');
 const fccTestingRoutes = require('./routes/fcctesting.js');
 const runner = require('./test-runner');
@@ -34,34 +34,36 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Connect to DB before connecting app routes:
-dbConnection(async (dbClient) => {
-  // Front end for specific project issues:
-  app.route('/:project/').get(function (req, res) {
-    res.sendFile(__dirname + '/views/issue.html');
+DBConnection.getClient()
+  .then(async (dbClient) => {
+    // Front end for specific project issues:
+    app.route('/:project/').get(function (req, res) {
+      res.sendFile(__dirname + '/views/issue.html');
+    });
+
+    // Serve index.html page on get request to '/'
+    app.route('/').get(function (req, res) {
+      res.sendFile(__dirname + '/views/index.html');
+    });
+
+    // For FCC testing purposes
+    fccTestingRoutes(app);
+
+    // Routing for API
+    await apiRoutes(app);
+
+    // 404 page not found:
+    app.get('*', (req, res) => {
+      console.log('HIT 404 ROUTE');
+      // Redirect to index
+      res.redirect('/');
+    });
+  })
+  .catch((err) => {
+    // If an error occurs, respond to requests with error message
+    console.error('Error when trying to set up routes with DB: ', err);
+    app.use('*', (req, res) => res.send('Database connection error!'));
   });
-
-  // Serve index.html page on get request to '/'
-  app.route('/').get(function (req, res) {
-    res.sendFile(__dirname + '/views/index.html');
-  });
-
-  // For FCC testing purposes
-  fccTestingRoutes(app);
-
-  // Routing for API
-  await apiRoutes(app, dbClient);
-
-  // 404 page not found:
-  app.get('*', (req, res) => {
-    console.log('HIT 404 ROUTE');
-    // Redirect to index
-    res.redirect('/');
-  });
-}).catch((err) => {
-  // If an error occurs, respond to requests with error message
-  console.error('Error when trying to set up routes with DB: ', err);
-  app.use('*', (req, res) => res.send('Database connection error!'));
-});
 
 // Internal Error Handler:
 app.use((err, req, res, next) => {

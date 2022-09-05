@@ -1,6 +1,20 @@
 const { ObjectId } = require('mongodb');
 
-module.exports = function (issueCollection) {
+const DBConnection = require('../dbconnection');
+
+const DB_NAME = process.env.DB_NAME;
+
+module.exports = DBConnection.getClient().then((dbClient) => {
+  // Get Issue Collection from DB
+  const issueCollection = dbClient.db(DB_NAME).collection('issues');
+
+  // Create TTL index to expire documents after X seconds
+  // https://www.mongodb.com/docs/manual/tutorial/expire-data/
+  issueCollection.createIndex(
+    { expireXSecondsFrom: 1 },
+    { expireAfterSeconds: 86400 }, // Expire records after 1 day
+  );
+
   const issueController = {};
 
   // Gets all Issues for a given project_name that match all filters
@@ -242,7 +256,7 @@ module.exports = function (issueCollection) {
       return res.status(200).json({
         error: 'could not update',
         _id,
-        info: 'Issue could not be updated. Please check issue _id is valid, and project name is correct',
+        info: 'Issue could not be updated. Please check issue _id is valid and project name is correct',
       });
     }
   };
@@ -287,10 +301,10 @@ module.exports = function (issueCollection) {
       return res.status(200).json({
         error: 'could not delete',
         _id,
-        info: 'Issue could not be deleted. Please check issue _id is valid, and project name is correct',
+        info: 'Issue could not be deleted. Please check issue _id is valid and project name is correct',
       });
     }
   };
 
   return issueController;
-};
+});

@@ -1,7 +1,4 @@
 'use strict';
-const issueControllerSetup = require('../controllers/issueController');
-
-const DB_NAME = process.env.DB_NAME;
 
 const removeUnneededIssueFields = ({
   _id,
@@ -27,23 +24,15 @@ const removeUnneededIssueFields = ({
   updated_on,
 });
 
-module.exports = async function (app, dbClient) {
-  const issuesCollection = await dbClient.db(DB_NAME).collection('issues');
+module.exports = async function (app) {
+  // Get issueController middleware (requires waiting for DB connection)
 
-  // Create TTL index to expire documents after X seconds
-  // https://www.mongodb.com/docs/manual/tutorial/expire-data/
-  issuesCollection.createIndex(
-    { expireXSecondsFrom: 1 },
-    { expireAfterSeconds: 86400 }, // Expire records after 1 day
-  );
-
-  // Set up issueController middleware with database connection
   const {
     getAllProjectIssues,
     createNewIssue,
     updateIssueByID,
     deleteIssueByID,
-  } = issueControllerSetup(issuesCollection);
+  } = await require('../controllers/issueController');
 
   app
     .route('/api/issues/:project')

@@ -3,6 +3,8 @@ const chai = require('chai');
 const assert = chai.assert;
 const server = require('../server');
 
+const DBConnection = require('../dbconnection.js');
+
 chai.use(chaiHttp);
 
 // Generate a random project name to avoid clashing with any existing docs
@@ -20,7 +22,7 @@ const PROJECT_NAME = (function () {
 suite('Functional Tests', function () {
   // Allow server connection to db before starting tests
   this.beforeAll((done) => {
-    setTimeout(() => done(), 3000);
+    DBConnection.getClient().then(() => done());
   });
 
   test('A POST request to /api/issues/testProject with every issue field should return a complete issue object', (done) => {
