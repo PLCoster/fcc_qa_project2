@@ -246,6 +246,31 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      // Helper function to make any displayed results HTML-safe
+      function replaceUnsafeChars(input) {
+        if (typeof input !== 'string') {
+          return input;
+        }
+
+        const charReplacements = {
+          '<': '&lt;',
+          '>': '&gt;',
+          '&': '&amp;',
+          '"': '&quot;',
+          "'": '&#39;',
+        };
+
+        return input
+          .split('')
+          .map((char) => {
+            if (char in charReplacements) {
+              return charReplacements[char];
+            }
+            return char;
+          })
+          .join('');
+      }
+
       $(function () {
         let currentProject = window.location.pathname.replace(/\//g, '');
         let url = '/api/issues/' + currentProject;
@@ -268,15 +293,21 @@
                     ${openStatus}
                   </p>
                 </div>`,
-                `<h3 class="issue-title">${issue.issue_title}</h3>`,
+                `<h3 class="issue-title">${replaceUnsafeChars(
+                  issue.issue_title,
+                )}</h3>`,
                 '<hr>',
                 `<p><strong>Issue Details:</strong></p>`,
-                '<p>' + issue.issue_text + '</p>',
+                '<p>' + replaceUnsafeChars(issue.issue_text) + '</p>',
                 `<p><strong>Issue Status:</strong></p>`,
-                '<p>' + issue.status_text + '</p>',
+                '<p>' + replaceUnsafeChars(issue.status_text) + '</p>',
                 `<div class="d-flex">
-                  <p class="id"><b>Created by: </b>${issue.created_by}</p>
-                  <p class="id"><b>Assigned to: </b>${issue.assigned_to}</p>
+                  <p class="id"><b>Created by: </b>${replaceUnsafeChars(
+                    issue.created_by,
+                  )}</p>
+                  <p class="id"><b>Assigned to: </b>${replaceUnsafeChars(
+                    issue.assigned_to,
+                  )}</p>
                  </div>`,
                 `<div class="d-flex justify-content-between flex-wrap">
                   <p class="id"><b>Created on: </b>${issue.created_on}</p>
