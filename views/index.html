@@ -364,7 +364,7 @@
               and values are:
             </li>
             <ul>
-              <li><code>_id</code> - 24 hexadecimal characters _id</li>
+              <li><code>_id</code> - 24 hexadecimal characters of Issue _id</li>
               <li>
                 <code>issue_title</code>, <code>issue_text</code>,
                 <code>created_by</code>, <code>assigned_to</code>,
@@ -599,8 +599,6 @@
 
         // Update current project name when input changes
         $('#project-name-input').on('keyup', function (e) {
-          console.log(e);
-          console.log('PROJECT NAME CHANGED!');
           $('#current-project-name').text($('#project-name-input').val());
         });
 
@@ -661,7 +659,6 @@
         $('#testForm3').submit(function (e) {
           e.preventDefault();
           const project_name = $('#project-name-input').val();
-          console.log(project_name);
 
           if (!project_name) {
             $('#response-info').text('Error: Please specify project name!');

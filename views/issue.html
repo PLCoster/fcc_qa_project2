@@ -255,42 +255,41 @@
           url: url,
           success: function (data) {
             let issues = [];
-            data.forEach(function (ele) {
-              console.log(ele);
-              let openstatus;
-              ele.open ? (openstatus = 'open') : (openstatus = 'closed');
+            data.forEach(function (issue) {
+              let openStatus;
+              issue.open ? (openStatus = 'open') : (openStatus = 'closed');
               let single = [
-                `<div class="issue ${openstatus}">`,
+                `<div class="issue ${openStatus}">`,
                 `<div class="d-flex justify-content-between">
                   <p class="id">
-                    id: ${ele._id}
+                    id: ${issue._id}
                   </p>
                   <p class="status">
-                    ${openstatus}
+                    ${openStatus}
                   </p>
                 </div>`,
-                `<h3 class="issue-title">${ele.issue_title}</h3>`,
+                `<h3 class="issue-title">${issue.issue_title}</h3>`,
                 '<hr>',
                 `<p><strong>Issue Details:</strong></p>`,
-                '<p>' + ele.issue_text + '</p>',
+                '<p>' + issue.issue_text + '</p>',
                 `<p><strong>Issue Status:</strong></p>`,
-                '<p>' + ele.status_text + '</p>',
+                '<p>' + issue.status_text + '</p>',
                 `<div class="d-flex">
-                  <p class="id"><b>Created by: </b>${ele.created_by}</p>
-                  <p class="id"><b>Assigned to: </b>${ele.assigned_to}</p>
+                  <p class="id"><b>Created by: </b>${issue.created_by}</p>
+                  <p class="id"><b>Assigned to: </b>${issue.assigned_to}</p>
                  </div>`,
                 `<div class="d-flex justify-content-between flex-wrap">
-                  <p class="id"><b>Created on: </b>${ele.created_on}</p>
-                  <p class="id"><b>Last updated: </b>${ele.updated_on}</p>
+                  <p class="id"><b>Created on: </b>${issue.created_on}</p>
+                  <p class="id"><b>Last updated: </b>${issue.updated_on}</p>
                  </div>`,
                 `<div class="d-flex justify-content-between">
                     ${
-                      ele.open
-                        ? `<button href="#" class="closeIssue btn btn-sm btn-warning" id="${ele._id}">Close Issue</button>`
+                      issue.open
+                        ? `<button href="#" class="closeIssue btn btn-sm btn-warning" id="${issue._id}">Close Issue</button>`
                         : ''
                     }
                     <button href="#" class="deleteIssue btn btn-sm btn-danger" id="${
-                      ele._id
+                      issue._id
                     }">Delete Issue</button>
                   </div>`,
                 '</div>',
