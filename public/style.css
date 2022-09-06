@@ -98,6 +98,10 @@ code ul.indent {
   max-width: 100%;
 }
 
+p.note {
+  text-align: center;
+}
+
 .footer {
   margin-top: 40px;
 }
