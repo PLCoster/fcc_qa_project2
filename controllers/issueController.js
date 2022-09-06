@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb');
 
 const DBConnection = require('../dbconnection');
+const sampleIssues = require('./sampleIssues.js');
 
 const DB_NAME = process.env.DB_NAME;
 
@@ -14,6 +15,9 @@ module.exports = DBConnection.getClient().then((dbClient) => {
     { expireXSecondsFrom: 1 },
     { expireAfterSeconds: 86400 }, // Expire records after 1 day
   );
+
+  // Insert some sample Issues on every server startup
+  issueCollection.insertMany(sampleIssues);
 
   const issueController = {};
 
